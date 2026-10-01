@@ -23,7 +23,7 @@ Don't trust `pool_sv2 --version` to tell you what an image contains — upstream
 ## Applying the bump
 
 1. Set the new tag in `dockerTag` in `startos/manifest/index.ts`, and set `version` in `startos/versions/current.ts` to `<upstream>:0`.
-2. **Diff the config schema.** Upstream moves fields between releases without deprecation. `startos/poolConfig.ts` renders `pool.toml` as a literal string, so a schema change is silent until the daemon refuses to start. The authority is the serde structs, not the example configs:
+2. **Diff the config schema.** Upstream moves fields between releases without deprecation. `generatePoolToml` in `startos/utils.ts` renders `pool.toml` as a literal string, so a schema change is silent until the daemon refuses to start. The authority is the serde structs, not the example configs:
 
    - `pool-apps/pool/src/lib/config.rs` — `PoolConfig`
    - `pool-apps/jd-server/src/lib/config.rs` — `JDSPartialConfig`, the `[jds]` section
@@ -40,5 +40,5 @@ Don't trust `pool_sv2 --version` to tell you what an image contains — upstream
 
    The log names the IPC socket path it resolved; check it matches `ipcSocketLink()` in `startos/utils.ts` for a non-mainnet network as well as mainnet.
 
-4. If the IPC schema version in `poolConfig.ts` or the Bitcoin versions upstream accepts have moved, update `versionRange` in `startos/dependencies.ts` to match.
+4. If the IPC schema version in `generatePoolToml` or the Bitcoin versions upstream accepts have moved, update `versionRange` in `startos/dependencies.ts` to match.
 5. **Re-check the key encoding.** `generateAuthorityKeypair()` in `startos/utils.ts` reproduces `stratum-apps/src/key_utils/mod.rs`. If that module changes, confirm the generator still derives upstream's published example public key from its example secret key.

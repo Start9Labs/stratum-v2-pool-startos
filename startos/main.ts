@@ -2,11 +2,11 @@ import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manife
 import { poolToml } from './fileModels/poolToml'
 import { storeJson } from './fileModels/storeJson'
 import { i18n } from './i18n'
-import { generatePoolToml } from './poolConfig'
 import { sdk } from './sdk'
 import {
   bitcoindIpcMount,
   bitcoindSocketName,
+  generatePoolToml,
   ipcSocketLink,
   jdsPort,
   poolPort,
