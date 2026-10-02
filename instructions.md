@@ -33,11 +33,11 @@ If your miners are Stratum V1 hardware, put the **Stratum V2** service from the 
 
 ### Monitoring
 
-The **Pool Server** health check turns green once the pool has a block template from Bitcoin and is accepting miners; while it is enabled, the **Job Declaration Server** check turns green once JD clients can connect. The **Monitoring API** interface serves JSON with the connected miners and their channels, and the service logs show miners connecting and shares arriving.
+The **Pool Server** health check waits for the initial block template and previous-block hash from Bitcoin before turning green. If it shows **Waiting for a block template from Bitcoin**, check whether your Bitcoin node is still syncing. Once the pool is ready, the **Job Declaration Server** check turns green when JD clients can connect, if it is enabled. The **Monitoring API** interface serves JSON with the connected miners and their channels, and the service logs show miners connecting and shares arriving.
 
 ### Actions
 
-- **Configure** — change the payout address, network, pool signature, shares per minute, or the Job Declaration Server toggle. The pool restarts with the new settings.
+- **Configure** — change the payout address, network, pool signature, shares per minute, past-job retention, or the Job Declaration Server toggle. The pool restarts with the new settings. Leave **Past Jobs Per Channel** blank unless you need to tune late-share handling. Increasing it retains more old jobs but uses more memory; avoid lowering retention when serving job-declaration clients.
 - **Connection Info** — the authority public key and the addresses miners need. Run it whenever you add a miner.
 - **Rotate Authority Key** — generates a new keypair. Every miner keeps the old public key until you give it the new one, and is refused until then, so do this only when you mean to.
 

@@ -13,7 +13,7 @@ export const manifest = setupManifest({
   volumes: ['main'],
   images: {
     pool: {
-      source: { dockerTag: 'stratumv2/pool_sv2:v0.7.0' },
+      source: { dockerTag: 'stratumv2/pool_sv2:v0.8.0' },
       arch: ['x86_64', 'aarch64'],
     },
   },

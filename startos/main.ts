@@ -9,6 +9,7 @@ import {
   generatePoolToml,
   ipcSocketLink,
   jdsPort,
+  observePoolStdout,
   poolPort,
 } from './utils'
 
@@ -35,6 +36,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       poolSignature: store.poolSignature,
       network: store.bitcoinNetwork,
       sharesPerMinute: store.sharesPerMinute,
+      maxPastJobs: store.maxPastJobs,
       jdsEnabled: store.jdsEnabled,
     }),
   )
@@ -60,6 +62,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   )
 
   const socketLink = ipcSocketLink(store.bitcoinNetwork)
+  let poolReady = false
 
   const daemons = sdk.Daemons.of(effects)
     .addOneshot('link-ipc-socket', {
@@ -77,17 +80,39 @@ export const main = sdk.setupMain(async ({ effects }) => {
     .addDaemon('pool', {
       subcontainer: sub,
       exec: {
-        command: ['/app/pool_sv2', '-c', '/data/pool.toml'],
-        cwd: '/app',
+        fn: async () => {
+          poolReady = false
+          return {
+            command: ['/app/pool_sv2', '-c', '/data/pool.toml'],
+            cwd: '/app',
+            env: { RUST_LOG: 'info' },
+            onStdout: observePoolStdout(() => {
+              poolReady = true
+            }),
+            onStderr: (chunk: Buffer | string) => {
+              process.stderr.write(chunk)
+            },
+          }
+        },
       },
       ready: {
         display: i18n('Pool Server'),
         gracePeriod: 30_000,
-        fn: () =>
-          sdk.healthCheck.checkPortListening(effects, poolPort, {
-            successMessage: i18n('The pool is serving work'),
-            errorMessage: i18n('The pool is not serving work'),
-          }),
+        fn: async () => {
+          const listening = await sdk.healthCheck.checkPortListening(
+            effects,
+            poolPort,
+            {
+              successMessage: i18n('The pool is serving work'),
+              errorMessage: i18n('The pool is not serving work'),
+            },
+          )
+          if (listening.result !== 'success' || poolReady) return listening
+          return {
+            result: 'loading',
+            message: i18n('Waiting for a block template from Bitcoin'),
+          }
+        },
       },
       requires: ['link-ipc-socket'],
     })

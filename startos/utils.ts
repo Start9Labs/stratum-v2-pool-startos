@@ -51,6 +51,18 @@ export function generateAuthorityKeypair() {
   }
 }
 
+export function observePoolStdout(onReady: () => void) {
+  const readyMessage =
+    'Required template data received, ready to accept connections'
+  let tail = ''
+  return (chunk: Buffer | string) => {
+    process.stdout.write(chunk)
+    const text = tail + chunk.toString()
+    if (text.includes(readyMessage)) onReady()
+    tail = text.slice(-(readyMessage.length - 1))
+  }
+}
+
 export type PoolConfig = {
   authorityPublicKey: string
   authoritySecretKey: string
@@ -58,6 +70,7 @@ export type PoolConfig = {
   poolSignature: string
   network: BitcoinNetwork
   sharesPerMinute: number
+  maxPastJobs: number | null
   jdsEnabled: boolean
 }
 
@@ -82,7 +95,7 @@ pool_signature = ${tomlString(c.poolSignature)}
 
 shares_per_minute = ${tomlFloat(c.sharesPerMinute)}
 share_batch_size = 10
-
+${c.maxPastJobs === null ? '' : `max_past_jobs = ${c.maxPastJobs}\n`}
 supported_extensions = [${workerHashrateExtension}]
 required_extensions = []
 
