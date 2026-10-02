@@ -51,6 +51,17 @@ export const inputSpec = InputSpec.of({
     integer: false,
     min: 1,
   }),
+  maxPastJobs: Value.number({
+    name: i18n('Past Jobs Per Channel'),
+    description: i18n(
+      'Leave blank for the upstream default. Increase to retain more jobs for late shares, using more memory. Avoid lowering retention when serving job-declaration clients.',
+    ),
+    required: false,
+    default: null,
+    integer: true,
+    min: 1,
+    max: Number.MAX_SAFE_INTEGER,
+  }),
   jdsEnabled: Value.toggle({
     name: i18n('Job Declaration Server'),
     description: i18n(
@@ -81,6 +92,7 @@ export const configure = sdk.Action.withInput(
       poolSignature: s?.poolSignature,
       bitcoinNetwork: s?.bitcoinNetwork,
       sharesPerMinute: s?.sharesPerMinute,
+      maxPastJobs: s?.maxPastJobs,
       jdsEnabled: s?.jdsEnabled,
     }
   },

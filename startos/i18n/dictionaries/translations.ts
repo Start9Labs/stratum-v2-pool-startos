@@ -51,6 +51,9 @@ export default {
     72: 'Los mineros que aún tengan la clave pública antigua serán rechazados hasta que la actualicen.',
     73: 'Clave de autoridad rotada',
     74: 'Actualiza cada minero con la nueva clave pública.',
+    75: 'Esperando una plantilla de bloque de Bitcoin',
+    76: 'Trabajos anteriores por canal',
+    77: 'Déjalo en blanco para usar el valor predeterminado del proyecto. Auméntalo para conservar más trabajos para shares tardíos, usando más memoria. Evita reducir la retención si atiendes a clientes de declaración de trabajo.',
   },
   de_DE: {
     0: 'Pool',
@@ -102,6 +105,9 @@ export default {
     72: 'Miner, die noch den alten öffentlichen Schlüssel haben, werden abgewiesen, bis sie ihn aktualisieren.',
     73: 'Authority-Schlüssel rotiert',
     74: 'Aktualisiere jeden Miner mit dem neuen öffentlichen Schlüssel.',
+    75: 'Warten auf eine Block-Vorlage von Bitcoin',
+    76: 'Frühere Jobs pro Kanal',
+    77: 'Für den Upstream-Standardwert leer lassen. Ein höherer Wert hält mehr Jobs für verspätete Shares vor und benötigt mehr Speicher. Bei Job-Declaration-Clients die Aufbewahrung nicht verringern.',
   },
   pl_PL: {
     0: 'Pula',
@@ -153,6 +159,9 @@ export default {
     72: 'Koparki, które nadal mają stary klucz publiczny, będą odrzucane, dopóki go nie zaktualizują.',
     73: 'Klucz autorytetu zrotowany',
     74: 'Zaktualizuj każdą koparkę nowym kluczem publicznym.',
+    75: 'Oczekiwanie na szablon bloku z Bitcoina',
+    76: 'Poprzednie zadania na kanał',
+    77: 'Pozostaw puste, aby użyć wartości domyślnej projektu. Zwiększenie zachowuje więcej zadań dla opóźnionych udziałów i zużywa więcej pamięci. Nie zmniejszaj retencji przy obsłudze klientów deklaracji zadań.',
   },
   fr_FR: {
     0: 'Pool',
@@ -204,5 +213,8 @@ export default {
     72: "Les mineurs qui conservent l'ancienne clé publique seront refusés jusqu'à ce qu'ils la mettent à jour.",
     73: "Clé d'autorité renouvelée",
     74: 'Mettez à jour chaque mineur avec la nouvelle clé publique.',
+    75: 'En attente d’un modèle de bloc de Bitcoin',
+    76: 'Anciens travaux par canal',
+    77: 'Laissez vide pour utiliser la valeur par défaut du projet. Augmentez-la pour conserver davantage de travaux pour les shares tardifs, au prix de plus de mémoire. Évitez de réduire la rétention si vous servez des clients de déclaration de travail.',
   },
 } satisfies Record<string, LangDict>

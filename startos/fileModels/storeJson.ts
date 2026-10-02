@@ -11,6 +11,7 @@ const shape = z.object({
     .enum(['mainnet', 'testnet4', 'signet', 'regtest'])
     .catch('mainnet'),
   sharesPerMinute: z.number().catch(6),
+  maxPastJobs: z.number().int().positive().nullable().catch(null),
   jdsEnabled: z.boolean().catch(true),
 })
 

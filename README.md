@@ -56,11 +56,11 @@ One volume holds everything the package owns; the daemon itself persists nothing
 Both files live on the volume. Only `store.json` records user intent; `pool.toml` is a rendered artifact and a hand edit to it is discarded.
 
 - **`store.json`** — every Configure answer plus the authority keypair, and the only source of user intent. Written by the Configure and Rotate Authority Key actions, read reactively by `main`, so saving it restarts the daemon with the new settings. The keypair is seeded once at install and changes only when rotated.
-- **`pool.toml`** — regenerated from `store.json` on every start and overwritten wholesale. It is modelled as an opaque string rather than a TOML document because upstream types `shares_per_minute` as `f32` and rejects the bare integer a serializer emits for `6.0`. Fixed by the package and not exposed: `listen_address`, `cert_validity_sec`, `server_id`, `share_batch_size`, the extension lists, `monitoring_address`, and the template provider's `fee_threshold` and `min_interval`. The `[jds]` section exists only while the Job Declaration Server is enabled.
+- **`pool.toml`** — regenerated from `store.json` on every start and overwritten wholesale. It is modelled as an opaque string rather than a TOML document because upstream types `shares_per_minute` as `f32` and rejects the bare integer a serializer emits for `6.0`. Fixed by the package and not exposed: `listen_address`, `cert_validity_sec`, `server_id`, `share_batch_size`, the extension lists, `monitoring_address`, and the template provider's `fee_threshold` and `min_interval`. The `[jds]` section exists only while the Job Declaration Server is enabled. Configure's optional past-job retention value is stored as `maxPastJobs`; a missing or null value omits `max_past_jobs` from the generated TOML and uses upstream's default without a data migration.
 
 ## Dependencies
 
-**`bitcoind`, required.** The pool builds every block template from the local node over its IPC socket, so the package requires Bitcoin running and healthy, mounts its IPC directory read-only at `/mnt/bitcoind-ipc`, and raises a task on Bitcoin to enable IPC (see [Tasks](#tasks)). The user-facing name is Bitcoin. Startup is gated on the dependency check because the pool binds no listener until Bitcoin answers, and exits outright when the socket is missing while the JDS is enabled.
+**`bitcoind`, required.** The pool builds every block template from the local node over its IPC socket, so the package requires Bitcoin running and healthy, mounts its IPC directory read-only at `/mnt/bitcoind-ipc`, and raises a task on Bitcoin to enable IPC (see [Tasks](#tasks)). The user-facing name is Bitcoin. Startup is gated on the dependency check. The pool binds its listener before receiving a template but accepts miners only after receiving both the initial template and previous-block hash; it exits when the IPC socket cannot be opened.
 
 ## Network Access and Interfaces
 
@@ -82,7 +82,7 @@ Install generates the authority keypair into `store.json`, raises the critical *
 
 Three user-facing actions; none is hidden.
 
-- **Configure** (`configure`) — run at install and whenever the payout address, network, pool signature, shares-per-minute target, or the Job Declaration Server toggle should change. Writes `store.json`; the daemon restarts with a re-rendered `pool.toml`, dropping every connected miner for a few seconds. Idempotent. Disabling the JDS unexports the `jds` interface as soon as the action saves.
+- **Configure** (`configure`) — run at install and whenever the payout address, network, pool signature, shares-per-minute target, past-job retention, or the Job Declaration Server toggle should change. Writes `store.json`; the daemon restarts with a re-rendered `pool.toml`, dropping every connected miner for a few seconds. Idempotent. Disabling the JDS unexports the `jds` interface as soon as the action saves.
 - **Connection Info** (`connection-info`) — run whenever a miner is being pointed at the pool. Reads `store.json` and the package's own hosts; changes nothing. Returns the authority public key and the non-local `host:port` pairs of the `pool` interface, plus the `jds` interface while enabled.
 - **Rotate Authority Key** (`rotate-authority-key`) — run when the secret key may have been exposed. Generates a fresh keypair into `store.json`; the daemon restarts and refuses every miner still holding the old public key. Returns the new public key. Safe to repeat; each run invalidates the previous key.
 
@@ -93,8 +93,10 @@ Three user-facing actions; none is hidden.
 
 ## Health Checks
 
-- **Pool Server** (`pool`) — probes port 3333 inside the container, grace period 30 s. The pool binds its listeners only after it has a template from Bitcoin, so a red check past the grace period means the IPC connection failed, not that the listener is slow: check Bitcoin is running with IPC enabled, that the Configure network matches the node's, and the service log for `CannotConnectToUnixSocket` or `Failed to load or deserialize config`.
-- **Job Declaration Server** (`jds`) — present only while the JDS is enabled; probes port 3334 once `pool` is green. Red with `pool` green means the JDS backend failed to attach to Bitcoin; the log names the cause.
+The checks distinguish a bound listener from a pool that has received mining work.
+
+- **Pool Server** (`pool`) — requires both port 3333 listening and the current daemon's stdout message `Required template data received, ready to accept connections`, emitted after the initial template and previous-block hash arrive. The observer handles messages split across output chunks, forwards stdout and stderr to service logs, and resets on every daemon launch. Logging is fixed at `info` so the readiness message is emitted. A bound port without that message reports loading; Bitcoin may still be in initial block download. If the check remains red after its 30 s grace period, check Bitcoin is running with IPC enabled, that the Configure network matches the node's, and the service log for `CannotConnectToUnixSocket` or `Pool config error`.
+- **Job Declaration Server** (`jds`) — present only while the JDS is enabled; probes port 3334 once `pool` is green. A failure means its listener is absent; inspect the service log for bind or shutdown errors. The embedded JDS attaches to Bitcoin before the pool becomes ready.
 
 ## Backups and Restore
 

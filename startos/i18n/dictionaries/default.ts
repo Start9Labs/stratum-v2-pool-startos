@@ -57,6 +57,9 @@ const dict = {
   'Miners that still hold the old public key will be refused until they update it.': 72,
   'Authority Key Rotated': 73,
   'Update every miner with the new public key.': 74,
+  'Waiting for a block template from Bitcoin': 75,
+  'Past Jobs Per Channel': 76,
+  'Leave blank for the upstream default. Increase to retain more jobs for late shares, using more memory. Avoid lowering retention when serving job-declaration clients.': 77,
 } as const
 
 /**
