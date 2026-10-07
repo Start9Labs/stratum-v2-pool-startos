@@ -60,7 +60,7 @@ Both files live on the volume. Only `store.json` records user intent; `pool.toml
 
 ## Dependencies
 
-**`bitcoind`, required.** The pool builds every block template from the local node over its IPC socket, so the package requires Bitcoin running and healthy, mounts its IPC directory read-only at `/mnt/bitcoind-ipc`, and raises a task on Bitcoin to enable IPC (see [Tasks](#tasks)). The user-facing name is Bitcoin. Startup is gated on the dependency check. The pool binds its listener before receiving a template but accepts miners only after receiving both the initial template and previous-block hash; it exits when the IPC socket cannot be opened.
+**`bitcoind`, required — Bitcoin 31.0:12 or later.** The pool builds every block template from the local node over its IPC socket, so the package requires Bitcoin running and healthy, mounts its IPC directory read-only at `/mnt/bitcoind-ipc`, and raises a task on Bitcoin to enable IPC (see [Tasks](#tasks)). The user-facing name is Bitcoin. Startup is gated on the dependency check. The pool binds its listener before receiving a template but accepts miners only after receiving both the initial template and previous-block hash; it exits when the IPC socket cannot be opened.
 
 ## Network Access and Interfaces
 
