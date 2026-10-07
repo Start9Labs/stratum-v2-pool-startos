@@ -31,7 +31,7 @@ const dict = {
   'Pool Signature': 45,
   'Short label embedded in the blocks this pool mines.': 46,
   'Bitcoin Network': 47,
-  'Must match the network your Bitcoin node runs on.': 48,
+  'Must match the network your Bitcoin node runs on.\n- Mainnet: the real Bitcoin network\n- Testnet4: the public test network; its coins have no value\n- Signet: a test network whose blocks are signed by a central party; its coins have no value\n- Regtest: a private test network for development': 48,
   Mainnet: 49,
   Testnet4: 50,
   Signet: 51,

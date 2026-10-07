@@ -32,7 +32,9 @@ export const inputSpec = InputSpec.of({
   }),
   bitcoinNetwork: Value.select({
     name: i18n('Bitcoin Network'),
-    description: i18n('Must match the network your Bitcoin node runs on.'),
+    description: i18n(
+      'Must match the network your Bitcoin node runs on.\n- Mainnet: the real Bitcoin network\n- Testnet4: the public test network; its coins have no value\n- Signet: a test network whose blocks are signed by a central party; its coins have no value\n- Regtest: a private test network for development',
+    ),
     default: 'mainnet',
     values: {
       mainnet: i18n('Mainnet'),
