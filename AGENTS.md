@@ -12,9 +12,16 @@ admin credentials", "expose a web UI") to the constructs, the reference pages, a
 package to copy. Find the recipe before you read this package's neighbours: a package you reach by
 grepping may be non-conformant, and the recipe outranks it.
 
+Freshly scaffolded? Work the
+[New Package Checklist](../start-technologies/projects/start-sdk/docs/src/new-package-checklist.md)
+(or <https://docs.start9.com/packaging/new-package-checklist.html>) from top to bottom. It is a
+guide page, not a file in this repo — read it, don't copy it in.
+
 Keep `README.md` (technical reference for an AI support or administering agent) and
-`instructions.md` (end-user docs) in sync with your changes. Upstream-version bumps have
-their own procedure in `UPDATING.md` — follow it rather than editing the image tag alone.
+`instructions.md` (end-user docs) in sync with your changes. This file restates neither:
+whoever changes the package has both, so it carries only what they don't — repo mechanics,
+a change that looks right and is not, where the next thing gets added, a naming trap, a
+build or test invocation particular to this repo.
 
 **Fix a defect you spot rather than reporting it** — you have the package open and the
 context to be sure. File **a GitHub issue on this repo** only when the call isn't yours to
@@ -27,8 +34,6 @@ verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
-- **`pool.toml` is rendered as a literal string, and must stay that way.** Upstream types `shares_per_minute` as `f32` and rejects a bare integer where it wants a float. A TOML serializer emits `6` for `6.0` and the daemon refuses to start, so `generatePoolToml` in `utils.ts` formats floats by hand. Don't "improve" it into a `FileHelper.toml` model.
-- **The authority keypair is generated per install and is a real secret.** Upstream's example configs ship a published keypair; never fall back to it, and never log the secret half. `generateAuthorityKeypair()` must keep producing SRI's encoding — base58check of the bare secret, and of the x-only public key behind a little-endian u16 version 1 — verify against upstream's example pair after touching it.
-- **A dependency mount is always a directory, by design.** StartOS disabled file mounts on dependencies in alpha.16: `MountTarget.filetype` is `#[serde(skip_deserializing)]` and `SubContainer.mount` hardcodes `'directory'` for a pointer mount, so binding the socket fails with `mount exited with exit status: 32`. Mount Bitcoin's `ipc` **directory** instead. The `link-ipc-socket` oneshot is needed either way — upstream hardcodes `node.sock` while bitcoind publishes `bitcoin-core.sock`, so something has to bridge the name.
-- **`ipcSocketLink()` must reproduce upstream's `[<network>/]node.sock` layout exactly.** Upstream appends that to `data_dir` itself, so a mismatch fails at connect time rather than at parse time.
-- **Verify a config change against the real binary, not against upstream's example TOMLs.** The examples contradict each other and lag the serde structs. `UPDATING.md` has the one-line `docker run` that parses a rendered config without touching the network.
+- **Keep `pool.toml` a hand-formatted string; don't turn it into a `FileHelper.toml` model.** A TOML serializer writes `6` for `6.0`, and upstream's `f32` `shares_per_minute` rejects it, so the daemon refuses to start.
+- **Never fall back to upstream's published example keypair, and never log the secret half.** `generateAuthorityKeypair()` must keep SRI's encoding — base58check of the bare secret, and of the x-only public key behind a little-endian u16 version 1; check it against upstream's example pair after touching it.
+- **Mount Bitcoin's `ipc` directory, not its socket, and keep the `link-ipc-socket` oneshot.** A dependency mount is always a directory, and upstream looks for `<data_dir>/[<network>/]node.sock` while Bitcoin publishes `bitcoin-core.sock`; `ipcSocketLink()` must reproduce that layout exactly, or the pool fails at connect time.

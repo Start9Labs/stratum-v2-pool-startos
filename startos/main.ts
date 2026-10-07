@@ -1,4 +1,5 @@
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
+import { dependencies } from './dependencies'
 import { poolToml } from './fileModels/poolToml'
 import { storeJson } from './fileModels/storeJson'
 import { i18n } from './i18n'
@@ -25,7 +26,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   if (!store.authorityPublicKey || !store.authoritySecretKey) {
     throw new Error('The pool has no authority keypair.')
   }
-  await sdk.checkDependencies(effects).then((r) => r.throwIfNotSatisfied())
+  await dependencies.check(effects).then((r) => r.throwIfNotSatisfied())
 
   await poolToml.write(
     effects,

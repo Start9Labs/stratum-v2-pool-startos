@@ -20,7 +20,7 @@ Three interfaces are exposed: **Pool**, which miners connect to; **Job Declarati
 
 ## Getting set up
 
-This pool builds its blocks from your own node, so **install Bitcoin first**.
+This pool builds its blocks from your own node, so **install Bitcoin 31.0:12 or later first**.
 
 1. Open the **Configure** task shown after install and enter the **Pool Payout Address** — the Bitcoin address that receives blocks from miners who did not name their own. Set the **Bitcoin Network** to the one your node runs on, and adjust the pool signature, shares per minute, and Job Declaration Server toggle if you need to.
 2. Save. If Bitcoin's IPC socket is off, a task on Bitcoin asks you to enable it — complete it, then make sure Bitcoin is running.
