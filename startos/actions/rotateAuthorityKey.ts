@@ -35,6 +35,7 @@ export const rotateAuthorityKey = sdk.Action.withoutInput(
         value: publicKey,
         copyable: true,
         qr: true,
+        launchable: false,
         masked: false,
       },
     }

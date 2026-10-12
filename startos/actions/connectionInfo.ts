@@ -47,6 +47,7 @@ const addressGroup = (
     value,
     copyable: true,
     qr: false,
+    launchable: false,
     masked: false,
   })),
 })
@@ -89,6 +90,7 @@ export const connectionInfo = sdk.Action.withoutInput(
             value: store.authorityPublicKey,
             copyable: true,
             qr: true,
+            launchable: false,
             masked: false,
           },
           addressGroup(
