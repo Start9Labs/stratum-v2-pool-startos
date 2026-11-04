@@ -16,6 +16,8 @@ Each miner decides where its own blocks go by the username it connects with:
 - `sri/donate/<percent>/<address>` — split between your pool address and the miner's.
 - Anything else — the block pays your pool address.
 
+Miners sharing one translator connection must use the same payout policy. The first successful channel sets it; a later channel requesting a different payout is rejected with `incompatible-payout-mode`.
+
 Three interfaces are exposed: **Pool**, which miners connect to; **Job Declaration Server**, which their JD clients connect to when it is enabled; and a read-only **Monitoring API** with connected miners, channels, and hashrate.
 
 ## Getting set up
@@ -45,3 +47,4 @@ The **Pool Server** health check waits for the initial block template and previo
 
 - Bitcoin must run on this same server with IPC enabled; the pool cannot use a remote node.
 - The pool does not track or pay out shares. A block pays the address selected by the username of the miner that found it, in full or by the donation split that miner chose — there is no proportional payout across miners.
+- The Job Declaration Server validates jobs but cannot broadcast solved blocks sent through `PushSolution` with this package's Bitcoin IPC version 31. JD clients must broadcast their solved blocks through their own node. This restriction does not affect blocks mined from the pool's own templates.

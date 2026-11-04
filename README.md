@@ -44,11 +44,11 @@ One subcontainer, **`pool-sub`**, runs the `link-ipc-socket` oneshot and then th
 
 ## Volume and Data Layout
 
-One volume holds everything the package owns; the daemon itself persists nothing. Bitcoin's IPC directory is mounted in from the dependency.
+One volume holds the settings, authority keypair, and solved-block files. Bitcoin's IPC directory is mounted in from the dependency.
 
 | Volume          | Mount point         | Purpose                                                                                                                                                                                                        |
 | --------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `main`          | `/data`             | `store.json` (settings and the authority keypair), the rendered `pool.toml`, and `ipc/`, which holds only a symlink                                                                                            |
+| `main`          | `/data`             | `store.json` (settings and the authority keypair), the rendered `pool.toml`, and `ipc/`, which holds the socket symlink and saved blocks in `[network/]solutions/`                                                                                            |
 | `bitcoind:main` | `/mnt/bitcoind-ipc` | Bitcoin's IPC directory, read-only — it holds only the socket. The pool resolves its socket as `<data_dir>/[network/]node.sock`, so a oneshot symlinks that name under `/data/ipc` and `data_dir` points there |
 
 ## File Models
@@ -109,6 +109,8 @@ The checks distinguish a bound listener from a pool that has received mining wor
 3. `supported_extensions` is fixed to Worker-Specific Hashrate Tracking and `required_extensions` to none.
 4. Upstream's `--log-file` option is not used; logs go to the service log only.
 5. The authority keypair is generated per install. Upstream's published example keypair is never used, so a miner following an upstream tutorial must take the key from Connection Info.
+6. Each downstream connection has one payout policy, bound by its first successful channel open. A later channel requesting different coinbase outputs is rejected with `incompatible-payout-mode`; miners sharing a translator connection must use the same policy.
+7. The package selects Bitcoin IPC schema 31. The embedded JDS validates declared jobs but cannot propagate solved blocks received through `PushSolution`: upstream requires Bitcoin IPC schema 32 for that path. This does not disable submission of solutions to the pool's own templates.
 
 ---
 
