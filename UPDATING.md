@@ -22,7 +22,7 @@ Don't trust `pool_sv2 --version` to tell you what an image contains — upstream
 
 ## Applying the bump
 
-1. Set the new tag in `dockerTag` in `startos/manifest/index.ts`, and set `version` in `startos/versions/current.ts` to `<upstream>:0`.
+1. Set the new tag in `dockerTag` in `startos/manifest/index.ts`.
 2. **Diff the config schema.** Upstream moves fields between releases without deprecation. `generatePoolToml` in `startos/utils.ts` renders `pool.toml` as a literal string, so a schema change is silent until the daemon refuses to start. The authority is the serde structs, not the example configs:
 
    - `pool-apps/pool/src/lib/config.rs` — `PoolConfig`
