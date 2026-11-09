@@ -87,7 +87,7 @@ export function generatePoolToml(c: PoolConfig): string {
 authority_public_key = "${c.authorityPublicKey}"
 authority_secret_key = "${c.authoritySecretKey}"
 cert_validity_sec = 3600
-listen_address = "0.0.0.0:${poolPort}"
+listen_address = "[::]:${poolPort}"
 
 coinbase_reward_script = ${tomlString(`addr(${c.coinbaseRewardAddress})`)}
 server_id = 1
@@ -112,7 +112,7 @@ ${
   c.jdsEnabled
     ? `
 [jds]
-listen_address = "0.0.0.0:${jdsPort}"
+listen_address = "[::]:${jdsPort}"
 `
     : ''
 }`
